@@ -24,7 +24,7 @@ is a detailed tutorial on how to use Git with R that you can find here:
 -   Stage and commit your changes. (Pro tip: Do this frequently.)
 -   Push the changes to your forked project. (Also do this frequently,
     e.g. after each assignment).
--   If you are done, create a pull request, and assign Tamas and Marton
+-   If you are done, create a pull request, and assign Tamas and Bertram
     as reviewers
 
 **Have Fun!**
