@@ -17,9 +17,14 @@ You will have to create 3 plots based on the datasets and instructions detailed 
 -   Data visuzlization (ggplot2)
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(tidytuesdayR)
+library(rmarkdown)
+library(viridis)
+library(ggplot2)
+library(RColorBrewer)
+library(scales)
 ```
 
 ## Task 1: Climbing expeditions
@@ -31,7 +36,34 @@ The 2020-09-22 TidyTueday datasets are about climbing expeditions. From the thre
 -   The bar colors use the viridis palette and light theme.
 
 ```{r}
+#
+climbing_data <- tt_load("2020-09-22")
+expeditions <- climbing_data$expeditions
+head(expeditions)
+```
 
+```{r}
+expeditions2 <- expeditions %>%
+  mutate(peak_name = fct_lump(peak_name, n = 15)) %>%
+  filter(peak_name != "Other") %>%
+  group_by(peak_name, season) %>%
+  summarise(expedition_number = n(), .groups = 'drop') %>%
+  mutate(peak_name = fct_reorder(peak_name, expedition_number, .fun = sum))
+
+str(expeditions2)
+#print(head(expedition2))
+```
+
+
+```{r}
+task1 <- ggplot(expeditions2, aes(x = expedition_number, y = peak_name, fill = season)) +
+  geom_col() +
+  scale_fill_viridis(discrete = TRUE) +
+  labs(title = "The 15 most popular peaks stacked by season of expedition", x = "Number of Expeditions") +
+  theme_light() +
+  theme(legend.position = "bottom", legend.direction = "horizontal")
+
+print(task1)
 ```
 
 ## Task 2: PhDs awarded
@@ -45,6 +77,30 @@ Notes:
 -   The line size is 1.2, the colors are from the brewer "Dark2" palette. The theme is set to minimal.
 
 ```{r}
+phd_by_field <- tt_load("2019-02-19")
+phd_data <- phd_by_field$phd_by_field
+head(phd_data)
+```
+
+```{r}
+phd_summary <- phd_data %>%
+  group_by(broad_field, year) %>%
+  summarise(total_phds = sum(n_phds, na.rm = TRUE))
+
+print(phd_summary)
+```
+
+```{r}
+
+task2 <- ggplot(phd_summary, aes(x = year, y = total_phds, color = broad_field)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_brewer(palette = "Dark2") +
+  scale_x_continuous(breaks = pretty_breaks(n = 5)) +
+  scale_y_continuous(labels = comma_format()) + 
+  labs(title = "Number of awarded Ph.D.'s in the US by year", x = NULL, y = NULL, color = "Broad field") +
+  theme_minimal()
+
+print(task2)
 
 ```
 
@@ -59,5 +115,40 @@ Notes:
 -   The point size is 2, . The theme is set to light.
 
 ```{r}
-
+commute <- tt_load("2019-11-05")
+commute_data <- commute$commute
+head(commute_data)
 ```
+
+```{r}
+commute_summary <- commute_data %>%
+  group_by(state_abb, mode, state_region) %>%
+  summarise(N = sum(n))
+  
+  
+print(commute_summary)
+```
+
+```{r}
+commute_data_wide <- commute_summary %>%
+  pivot_wider(names_from = mode, values_from = N)
+
+print(commute_data_wide)
+```
+
+```{r}
+task3 <- ggplot(commute_data_wide, aes(x = Walk, y = Bike, label = state_abb)) +
+  geom_point(aes(color = state_region)) +
+  geom_text(vjust = 0.5, hjust = 0.5, check_overlap = TRUE) +
+  scale_x_log10(labels = comma_format()) +
+  scale_y_log10(labels = comma_format(), limits = c(20, NA)) +
+  labs(title = "Title number pf people walking vs biking to work in each USA state",
+       x = "Number of ppl walking to work (log N)",
+       y = "Number of ppl bikinng to work (log N)",
+      color = "State region") +
+  theme_light()
+  theme(legend.position = "right", name = "State region")
+  
+print(task3)
+```
+
