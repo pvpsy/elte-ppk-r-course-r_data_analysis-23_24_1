@@ -54,7 +54,6 @@ str(expeditions2)
 #print(head(expedition2))
 ```
 
-
 ```{r}
 task1 <- ggplot(expeditions2, aes(x = expedition_number, y = peak_name, fill = season)) +
   geom_col() +
@@ -151,4 +150,3 @@ task3 <- ggplot(commute_data_wide, aes(x = Walk, y = Bike, label = state_abb)) +
   
 print(task3)
 ```
-
